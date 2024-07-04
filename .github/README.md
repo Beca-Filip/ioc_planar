@@ -5,18 +5,21 @@
 
 The goal of the optimal control problem is to find the (discretized) trajectory:
 
+<div class="math">
+
 $$ q = \begin{bmatrix} q_0 & q_1 & \ldots & q_{N-1} \end{bmatrix} $$
 
 $$ \dot{q} = \begin{bmatrix} \dot{q}_0 & \dot{q}_1 & \ldots & \dot{q}_{N-2} \end{bmatrix} $$
 
 $$ \ddot{q} = \begin{bmatrix} \ddot{q}_0 & \ddot{q}_1 & \ldots & \ddot{q}_{N-3} \end{bmatrix} $$
 
-
 that satisfies Euler integration constraints:
 
 $$ q_{t+1} = q_t + \Delta t \, \dot{q}_t $$
 
 $$ \dot{q}_{t+1} = \dot{q}_t + \Delta t \, \ddot{q}_t $$
+
+</div>
 
 ## Example 1: Minimum joint velocity trajectory
 The initial configuration is:
