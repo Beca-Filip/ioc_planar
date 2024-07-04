@@ -9,11 +9,11 @@ $$ q = \begin{bmatrix} q_0 & q_1 & \ldots & q_{N-1} \end{bmatrix} $$
 
 joint velocities:
 
-$$ \dot{q} = \begin{bmatrix} \dot{q}_0 & \dot{q}_{1} & \ldots & \dot{q}_{N-2} \end{bmatrix} $$
+$$ \dot{q} = \begin{bmatrix} \dot{q}_{0} & \dot{q}_{1} & \ldots & \dot{q}_{N-2} \end{bmatrix} $$
 
 and joint accelerations
 
-$$ \ddot{q} = \begin{bmatrix} \ddot{q}_0 & \ddot{q}_{1} & \ldots & \ddot{q}_{N-3} \end{bmatrix} $$
+$$ \ddot{q} = \begin{bmatrix} \ddot{q}_{0} & \ddot{q}_{1} & \ldots & \ddot{q}_{N-3} \end{bmatrix} $$
 
 that satisfy Euler integration constraints:
 
