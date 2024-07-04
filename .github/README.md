@@ -3,17 +3,19 @@
 - Contains wrapper functions for CasADi objects, allowing you to quickly generate optimal control trajectories for planar robots with revolute joints. You can modify the `make_ndof_model` function to generate your optimal control problems.
 - Will contain wrapper functions allowing you to quickly formulate and solve single-level inverse optimal control problems for planar robots with revolute joints.
 
-The goal of the optimal control problem is to find the (discretized) trajectory:
-
-<div class="math">
+The goal of the optimal control problem is to find the (discretized) joint angles:
 
 $$ q = \begin{bmatrix} q_0 & q_1 & \ldots & q_{N-1} \end{bmatrix} $$
 
+joint velocities:
+
 $$ \dot{q} = \begin{bmatrix} \dot{q}_0 & \dot{q}_1 & \ldots & \dot{q}_{N-2} \end{bmatrix} $$
+
+and joint accelerations
 
 $$ \ddot{q} = \begin{bmatrix} \ddot{q}_0 & \ddot{q}_1 & \ldots & \ddot{q}_{N-3} \end{bmatrix} $$
 
-that satisfies Euler integration constraints:
+that satisfy Euler integration constraints:
 
 $$ q_{t+1} = q_t + \Delta t \, \dot{q}_t $$
 
