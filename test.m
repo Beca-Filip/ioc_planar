@@ -55,10 +55,20 @@ sol_2 = opti.solve();
 opti.minimize(vars.costs.ee_vel_cost);
 sol_3 = opti.solve();
 
+% Optimize torque change
+opti.minimize(vars.costs.joint_torque_change_cost);
+sol_4 = opti.solve();
+
+% Optimize joint jerk
+opti.minimize(vars.costs.joint_jerk_cost);
+sol_5 = opti.solve();
+
 % Numerize
 num_vars_1 = numerize_vars(vars, sol_1);
 num_vars_2 = numerize_vars(vars, sol_2);
 num_vars_3 = numerize_vars(vars, sol_3);
+num_vars_4 = numerize_vars(vars, sol_4);
+num_vars_5 = numerize_vars(vars, sol_5);
 
 %%
 close all
@@ -81,15 +91,29 @@ plot_traj_from_vars(num_vars_3, 10);
 plot(goal(1), goal(2), 'ro', 'MarkerFaceColor', 'auto', 'MarkerSize', 20);
 axis('equal');
 
+figure('WindowState', 'maximized');
+hold all;
+plot_traj_from_vars(num_vars_4, 10);
+plot(goal(1), goal(2), 'ro', 'MarkerFaceColor', 'auto', 'MarkerSize', 20);
+axis('equal');
+
+figure('WindowState', 'maximized');
+hold all;
+plot_traj_from_vars(num_vars_5, 10);
+plot(goal(1), goal(2), 'ro', 'MarkerFaceColor', 'auto', 'MarkerSize', 20);
+axis('equal');
+
 figure('WindowState','maximized');
 hold on;
 plot_joint_traj_from_vars(num_vars_1);
 plot_joint_traj_from_vars(num_vars_2);
 plot_joint_traj_from_vars(num_vars_3);
+plot_joint_traj_from_vars(num_vars_4);
+plot_joint_traj_from_vars(num_vars_5);
 
 figure('WindowState','maximized');
 hold on;
-plot_compared_costs(num_vars_1, num_vars_2, num_vars_3);
+plot_compared_costs(num_vars_1, num_vars_2, num_vars_3, num_vars_4, num_vars_5);
 
 
 figure('WindowState','maximized');
@@ -97,5 +121,9 @@ hold on;
 plot_segment_vels_from_vars(num_vars_1);
 plot_segment_vels_from_vars(num_vars_2);
 plot_segment_vels_from_vars(num_vars_3);
+plot_segment_vels_from_vars(num_vars_4);
+plot_segment_vels_from_vars(num_vars_5);
+
+
 
 TileFigures
