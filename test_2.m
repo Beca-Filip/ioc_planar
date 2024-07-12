@@ -102,7 +102,8 @@ opti_ioc.subject_to(vec(-vars_ioc.variables.q + q_1) <= pi/4)
 
 
 % Create L2 loss
-vars_ioc.costs.L2_loss = sum(sum((vars_ioc.variables.q - q_1 - pi/2 * randn(size(q_1))).^2));
+% vars_ioc.costs.L2_loss = sum(sum((vars_ioc.variables.q - q_1 - pi/2 * randn(size(q_1))).^2));
+vars_ioc.costs.L2_loss = sum(sum((vars_ioc.variables.q - q_1).^2));
 
 % Optimize
 opti_ioc.minimize(vars_ioc.costs.L2_loss);
@@ -120,7 +121,8 @@ sol_ioc = opti_ioc.solve();
 num_vars_ioc = numerize_vars(vars_ioc, sol_ioc);
 
 % Print identification
-fprintf("True theta = [%.4e, %.4e, %.4e]\nId.  theta = [%.4e, %.4e, %.4e].\n", theta_1, num_vars_ioc.variables.theta);
+printFormat = sprintf("True theta = [%s]\nId.  theta = [%s].\n", repmat('%.4f, ', 1, length(theta_1)), repmat('%.4f, ', 1, length(theta_1)));
+fprintf(printFormat, theta_1, num_vars_ioc.variables.theta);
 
 %%
 close all
