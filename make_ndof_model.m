@@ -79,14 +79,18 @@ function [opti, vars] = make_ndof_model(n, N)
     vars.costs.joint_torque_cost = sum(sum(vars.functions.model_tau.^2));
     vars.costs.joint_vel_cost = sum(sum(vars.variables.dq.^2));
     vars.costs.ee_vel_cost = sum(sum(vars.functions.V{end}.^2));
-    vars.costs.goal_ee_pos_cost = sum((vars.functions.P{end}(1:2, end) - vars.parameters.goal).^2);
-    vars.costs.goal_joint_vel_cost = sum(sum(vars.variables.dq(:, end).^2));
+    vars.costs.joint_torque_change_cost = sum(sum( (vars.functions.model_tau(:, 2:end) - vars.functions.model_tau(:, 1:end-1)).^2 )) ./ vars.parameters.dt^2;
+    vars.costs.joint_jerk_cost = sum(sum( (vars.variables.ddq(:, 2:end) - vars.variables.ddq(:, 1:end-1)).^2 )) ./ vars.parameters.dt^2;
+    % vars.costs.goal_ee_pos_cost = sum((vars.functions.P{end}(1:2, end) - vars.parameters.goal).^2);
+    % vars.costs.goal_joint_vel_cost = sum(sum(vars.variables.dq(:, end).^2));
 
     vars.costs.joint_torque_cost = vars.costs.joint_torque_cost ./ 1e6;
     vars.costs.joint_vel_cost = vars.costs.joint_vel_cost ./ 9e2;
     vars.costs.ee_vel_cost = vars.costs.ee_vel_cost ./ 1e3;
-    vars.costs.goal_ee_pos_cost = vars.costs.goal_ee_pos_cost ./ 1e-3;
-    vars.costs.goal_joint_vel_cost = vars.costs.goal_joint_vel_cost ./ 3e2;    
+    vars.costs.joint_torque_change_cost = vars.costs.joint_torque_change_cost ./ 4.53e4;
+    vars.costs.joint_jerk_cost = vars.costs.joint_jerk_cost ./ 3.68e5;
+    % vars.costs.goal_ee_pos_cost = vars.costs.goal_ee_pos_cost ./ 1e-3;
+    % vars.costs.goal_joint_vel_cost = vars.costs.goal_joint_vel_cost ./ 3e2;    
     
     % Set
     opti.subject_to(vars.constraints.initial_pos == 0);
@@ -94,6 +98,4 @@ function [opti, vars] = make_ndof_model(n, N)
     opti.subject_to(vars.constraints.dynamics_pos == 0);
     opti.subject_to(vars.constraints.dynamics_vel == 0);
     opti.subject_to(vars.constraints.goal_ee == 0);
-
-    opti.minimize(vars.costs.joint_torque_cost + N * 10000 * vars.costs.goal_ee_pos_cost + N * 10000 * vars.costs.goal_joint_vel_cost);
 end
