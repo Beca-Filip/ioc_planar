@@ -72,7 +72,9 @@ num_vars_2 = numerize_vars(vars, sol_2);
 
 % Instantiate
 instantiate_ndof_model(vars_ioc, opti_ioc, dt, q0, dq0, L, COM, M, I, gravity, Fext, goal, num_vars_2.variables.ddq, num_vars_2.variables.dq, num_vars_2.variables.q);
-instantiate_ndof_ioc(vars_ioc, opti_ioc, lambda_2, theta_2, num_vars_1.variables.q);
+num_vars_noisy = num_vars_1;
+num_vars_noisy.variables.q = num_vars_1.variables.q + diag(deg2rad([1, 3]))*randn(size(num_vars_1.variables.q));
+instantiate_ndof_ioc(vars_ioc, opti_ioc, lambda_2, theta_2, num_vars_noisy.variables.q);
 
 % Optimize options
 opti_ioc.solver('ipopt');
@@ -109,7 +111,8 @@ axis('equal');
 figure('WindowState','maximized');
 hold on;
 plot_joint_traj_from_vars(num_vars_1);
-plot_joint_traj_from_vars(num_vars_2);
+plot_joint_traj_from_vars(num_vars_noisy);
+% plot_joint_traj_from_vars(num_vars_2);
 plot_joint_traj_from_vars(num_vars_ioc);
 
 % figure('WindowState','maximized');
