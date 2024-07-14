@@ -17,7 +17,7 @@ function plot_traj_from_vars(num_vars, numpts)
         [P, ~, ~, ~] = plot_from_vars(num_vars, ii);
         dP = P(end, :) - P(end-1, :);
         alpha = .2;
-        text(P(end, 1) + alpha * dP(1), P(end, 2) + alpha * dP(2), sprintf("%d", ii-1), 'FontSize', 20, 'Interpreter', 'latex', 'FontWeight', 'bold', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
+        text(P(end, 1) + alpha * dP(1), P(end, 2) + alpha * dP(2), sprintf("%d", ii-1), 'FontSize', 25, 'Interpreter', 'latex', 'FontWeight', 'bold', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
         plot_from_vars(num_vars, ii);
     end
 end
