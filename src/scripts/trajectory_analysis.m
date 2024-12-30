@@ -96,7 +96,8 @@ grid;
 xlabel('Sagittal axis: $x$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ylabel('Vertical axis: $z$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ax = gca; ax.FontSize = 25; ax.TickLabelInterpreter = 'latex';
-exportgraphics(gcf, "../../img/1-min-joint-velocity.pdf", 'ContentType', 'vector');
+% exportgraphics(gcf, "../../img/1-min-joint-velocity.pdf", 'ContentType', 'vector');
+exportgraphics(gcf, "../../img/1-min-joint-velocity.png", 'ContentType', 'image', 'Resolution', 600);
 
 figure('WindowState', 'maximized');
 hold all;
@@ -108,7 +109,8 @@ grid;
 xlabel('Sagittal axis: $x$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ylabel('Vertical axis: $z$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ax = gca; ax.FontSize = 25; ax.TickLabelInterpreter = 'latex';
-exportgraphics(gcf, "../../img/2-min-joint-torque.pdf", 'ContentType', 'vector');
+% exportgraphics(gcf, "../../img/2-min-joint-torque.pdf", 'ContentType', 'vector');
+exportgraphics(gcf, "../../img/2-min-joint-torque.png", 'ContentType', 'image', 'Resolution', 600);
 
 figure('WindowState', 'maximized');
 hold all;
@@ -120,7 +122,8 @@ grid;
 xlabel('Sagittal axis: $x$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ylabel('Vertical axis: $z$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ax = gca; ax.FontSize = 25; ax.TickLabelInterpreter = 'latex';
-exportgraphics(gcf, "../../img/3-min-ee-velocity.pdf", 'ContentType', 'vector');
+% exportgraphics(gcf, "../../img/3-min-ee-velocity.pdf", 'ContentType', 'vector');
+exportgraphics(gcf, "../../img/3-min-ee-velocity.png", 'ContentType', 'image', 'Resolution', 600);
 
 figure('WindowState', 'maximized');
 hold all;
@@ -132,7 +135,8 @@ grid;
 xlabel('Sagittal axis: $x$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ylabel('Vertical axis: $z$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ax = gca; ax.FontSize = 25; ax.TickLabelInterpreter = 'latex';
-exportgraphics(gcf, "../../img/4-min-joint-torque-change.pdf", 'ContentType', 'vector');
+% exportgraphics(gcf, "../../img/4-min-joint-torque-change.pdf", 'ContentType', 'vector');
+exportgraphics(gcf, "../../img/4-min-joint-torque-change.png", 'ContentType', 'image', 'Resolution', 600);
 
 figure('WindowState', 'maximized');
 hold all;
@@ -144,7 +148,8 @@ grid;
 xlabel('Sagittal axis: $x$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ylabel('Vertical axis: $z$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ax = gca; ax.FontSize = 25; ax.TickLabelInterpreter = 'latex';
-exportgraphics(gcf, "../../img/5-min-joint-jerk.pdf", 'ContentType', 'vector');
+% exportgraphics(gcf, "../../img/5-min-joint-jerk.pdf", 'ContentType', 'vector');
+exportgraphics(gcf, "../../img/5-min-joint-jerk.png", 'ContentType', 'image', 'Resolution', 600);
 
 figure('WindowState','maximized');
 hold on;
