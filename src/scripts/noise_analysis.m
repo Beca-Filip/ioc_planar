@@ -1,8 +1,10 @@
 close all
 
 n = 2;
-N = 20;
-T = 1.5;
+% N = 20;
+% T = 1.5;
+N = 120;
+T = 1.2;
 
 % 
 rng(420);
@@ -52,6 +54,7 @@ opti.solver('ipopt');
 
 % Optimize joint velocity
 theta_1 = [1, 5000, 1, 1, 1];
+% theta_1 = [1, 200, 500, 300, 1];
 % theta_1 = [1, 5000, 1];
 theta_1 = theta_1 ./ sum(theta_1);
 instantiate_parametrized_ndof_cf(vars, opti, theta_1);
@@ -106,7 +109,7 @@ for ii = 1 : Nnoise
         % Store
         Theta(:, ii, jj) = num_vars_ioc.variables.theta;
         ThetaErr(ii, jj) = norm(num_vars_ioc.variables.theta - reshape(theta_1, [], 1));
-        TrajErr(ii, jj) = sqrt(num_vars_ioc.target.loss);
+        TrajErr(ii, jj) = sqrt(num_vars_ioc.target.loss ./ numel(num_vars_ioc.variables.q));
 
         % Print identification
         printFormat = sprintf("True theta = [%s]\nId.  theta = [%s].\n", repmat('%.4f, ', 1, length(theta_1)), repmat('%.4f, ', 1, length(theta_1)));
@@ -120,49 +123,48 @@ end
 %%
 
 % Parameter errors
-figure;
+figure('Position', [100, 100, 700, 500]);
 surf(noise_grid_1, noise_grid_2, ThetaErr.');
 set(gca, 'XScale', 'log');
 set(gca, 'YScale', 'log');
 view(2);
 c = colorbar; % Adds a color bar and returns its handle
-ylabel(c, {'Distance $\| \hat{\theta} - \theta \|_2$ between the true'; 'and the retrieved objective function parameters [1]'}, 'Interpreter', 'latex', 'FontSize', 15); % Labels the color bar
+ylabel(c, {'Distance $\| \hat{\theta} - \theta \|_2$ between the true and the'; 'retrieved objective function parameters [1]'}, 'Interpreter', 'latex', 'FontSize', 15); % Labels the color bar
 caxis([min(ThetaErr(:)) max(ThetaErr(:))]); % Optional: Sets the color axis limits to the range of ThetaErr
 
 xlabel({"Variance $\sigma_1$ of noise added"; "to the first joint's trajectory [$^\circ$]"}, 'Interpreter', 'latex', 'FontSize', 15);
 ylabel({"Variance $\sigma_2$ of noise added"; "to the second joint's trajectory [$^\circ$]"}, 'Interpreter', 'latex', 'FontSize', 15);
+ax = gca; ax.FontSize = 15; ax.TickLabelInterpreter = 'latex';
 
 axis('square');
 
-% exportgraphics(gcf, "noise_analysis/ThetaErr.pdf", "ContentType", "vector");
-exportgraphics(gcf, "../../img/ThetaErr.png", "ContentType", "image", "Resolution", 400);
-
 % Trajectory errors
-logTrajErr = log10(rad2deg(TrajErr).');
+degTrajErr = rad2deg(TrajErr).';
 
-figure;
-surf(noise_grid_1, noise_grid_2, logTrajErr); % Plot the log-transformed data
+figure('Position', [100, 100, 700, 500]);
+surf(noise_grid_1, noise_grid_2, degTrajErr);
 set(gca, 'XScale', 'log');
 set(gca, 'YScale', 'log');
 view(2);
 c = colorbar; % Adds a color bar and returns its handle
-
-% Adjust color bar ticks and labels for log scale
-% tickValues = log10([min(rad2deg(TrajErr(:))), max(rad2deg(TrajErr(:)))]);
-% tickLabels = arrayfun(@(x) sprintf('%.2e', x), tickValues, 'UniformOutput', false);
-% 
-% set(c, 'Ticks', tickValues, 'TickLabels', tickLabels);
-
-ylabel(c, {'Distance $\| \hat{q} - q \|_2$ between the noisy true'; 'and the retrieved optimal trajectory [$^\circ$]'}, 'Interpreter', 'latex', 'FontSize', 15); % Labels the color bar
+ylabel(c, {'RMSE $\sqrt{\frac{1}{2N} \sum_{i} \sum_{k} (\hat{q}_{k, i} - q_{k, i})^2}$ between the noisy'; 'true and the retrieved optimal trajectory [$^\circ$]'}, 'Interpreter', 'latex', 'FontSize', 15); % Labels the color bar
 
 xlabel({"Variance $\sigma_1$ of noise added"; "to the first joint's trajectory [$^\circ$]"}, 'Interpreter', 'latex', 'FontSize', 15);
 ylabel({"Variance $\sigma_2$ of noise added"; "to the second joint's trajectory [$^\circ$]"}, 'Interpreter', 'latex', 'FontSize', 15);
+ax = gca; ax.FontSize = 15; ax.TickLabelInterpreter = 'latex';
 
 axis('square');
-TileFigures;
 
-% exportgraphics(gcf, "noise_analysis/TrajErr.pdf", "ContentType", "vector");
-exportgraphics(gcf, "../../img/TrajErr.png", "ContentType", "image", "Resolution", 400);
+% Saving figures
+% TileFigures
+%%
+figure(1)
+exportgraphics(gcf, "../../img/ThetaErr.pdf", "ContentType", "vector");
+exportgraphics(gcf, "../../img/ThetaErr.png", "ContentType", "image", "Resolution", 600);
+
+figure(2)
+exportgraphics(gcf, "../../img/TrajErr.pdf", "ContentType", "vector");
+exportgraphics(gcf, "../../img/TrajErr.png", "ContentType", "image", "Resolution", 600);
 
 %%
 % close all
