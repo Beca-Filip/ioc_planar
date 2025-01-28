@@ -1,5 +1,5 @@
 n = 3;
-N = 12;
+N = 36;
 T = 1.2;
 
 warmStartName = sprintf("warmStart-n%02d-N%04d.mat", n, N);
@@ -50,10 +50,10 @@ end
 %     zeros(n-3, N);
 % ];
 % q = [pi/2 * ones(1, N); zeros(n-1, N)];
-q = [pi/2*ones(1, N)-sin(((1:N)-1)/(N-1)*pi); pi/2*sin(((1:N)-1)/(N-1)*pi); -pi/2*sin(((1:N)-1)/(N-1)*pi)];
+q = [pi/2 - 0.5*sin(((1:N)-1)/(N-1)*pi); 1.3*sin(((1:N)-1)/(N-1)*pi); -1.3*sin(((1:N)-1)/(N-1)*pi)];
 q = q(1:n, :);
 noise = deg2rad(3 / (N)) * randn(size(q));
-q = q + noise;
+% q = q + noise;
 
 
 % goal = [2; 0];
@@ -62,7 +62,8 @@ q = q + noise;
 %     linspace(q0(2, 1), q0(2, end), N); 
 % ];
 
-dq = [diff(q, 1, 2) ./ dt, noise(:, randi(N)) ./ dt];
+dq = diff(q, 1, 2) ./ dt;
+dq = [dq, dq(:, end)];
 ddq = diff(dq, 1, 2) ./ dt;
 
 if exist(warmStartName, "file") && ~isempty(input(sprintf("Any key then enter if you want to load the solution from %s:\n", warmStartName)))
@@ -83,6 +84,7 @@ ivars = numerize_vars(vars, opti, true);
 % Optimize options
 opti.solver('ipopt', struct(), struct("max_iter", 10000));
 opti.minimize(vars.costs.max_com_height_cost + 0.05 * vars.costs.avg_joint_vel_cost + vars.costs.com_horizontal_vel_cost);
+% opti.minimize(vars.costs.takeoff_grf_cost + 100*sum(sum((vars.variables.q - q).^2)) - 1e4*vars.functions.Vcomtotal(2, end).^2);
 sol_1 = opti.solve();
 
 % Numerize
