@@ -1,4 +1,4 @@
-function varargout = plot_from_vars(num_vars, ii)
+function varargout = snapshot_from_vars(num_vars, ii)
 
 n = size(num_vars.variables.q, 1);
 

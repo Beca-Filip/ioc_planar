@@ -1,4 +1,4 @@
-function plot_traj_from_vars(num_vars, numpts)
+function plot_snapshots_from_vars(num_vars, numpts)
     if nargin < 2
         numpts = 5;
     end
@@ -14,10 +14,10 @@ function plot_traj_from_vars(num_vars, numpts)
 
     % Plot robot configurations
     for ii = floor(linspace(1, N, numpts))
-        [P, ~, ~, ~] = plot_from_vars(num_vars, ii);
+        [P, ~, ~, ~] = snapshot_from_vars(num_vars, ii);
         dP = P(end, :) - P(end-1, :);
         alpha = .2;
         text(P(end, 1) + alpha * dP(1), P(end, 2) + alpha * dP(2), sprintf("%d", ii-1), 'FontSize', 25, 'Interpreter', 'latex', 'FontWeight', 'bold', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
-        plot_from_vars(num_vars, ii);
+        snapshot_from_vars(num_vars, ii);
     end
 end
