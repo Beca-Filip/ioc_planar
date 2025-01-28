@@ -1,20 +1,25 @@
+close all;
+
+% Get ik data
+ik = importdata('../../ik/S06/Trial04.mat');
+[L, M, COM, I] = compute_inertial(ik.L, 71);
+
 n = 2;
-N = 120;
-T = 1.2;
+N = 225;
+T = 2.25;
 
 [opti, vars] = make_ndof_model(n, N);
 
 % Parameters
 % dt = 0.01;
 dt = T / (N-1);
-q0 = zeros(n, 1);
-q0(1) = -pi/2 + 0.1; q0(2) = 0.1;
-dq0 = zeros(n, 1);
+q0 = ik.q(:, 1);
+dq0 = (ik.q(:, 2) - ik.q(:, 1)) ./ dt;
 
-L = ones(n, 1);
-COM = vertcat(.5 * ones(1, n), zeros(1, n));
-M = ones(n, 1);
-I = 1/12 * ones(n, 1);
+% L = ones(n, 1);
+% COM = vertcat(.5 * ones(1, n), zeros(1, n));
+% M = ones(n, 1);
+% I = 1/12 * ones(n, 1);
 
 gravity = [0; -9.81];
 Fext = cell(n, 1);
@@ -22,58 +27,63 @@ for ii = 1 : n
     Fext{ii} = zeros(3, N-2);
 end
 
-goal = [1.5; -0.6];
+% goal = [1.5; -0.6];
 
 % % Variables
 % ddq = zeros(n, N-2);
 % dq = repmat(dq0, [1, N-1]);
 % q = repmat(q0, [1, N]);
    
+% q = [ ...
+%     linspace(-1.5708, -1.0109, N);
+%     linspace(0, 1.2609, N); 
+% ];
 q = [ ...
-    linspace(q0(1, 1), -1.0109, N);
-    linspace(q0(2, 1), 1.2609, N); 
+  linspace(ik.q(1, 1), ik.q(1, end), N);
+  linspace(ik.q(2, 1), ik.q(2, end), N);  
 ];
 
-
-% goal = [2; 0];
-% q = [ ...
-%     linspace(q0(1, 1), q0(1, end), N);
-%     linspace(q0(2, 1), q0(2, end), N); 
-% ];
+goal = ik.fk(1:2, end);
 
 dq = diff(q, 1, 2) ./ dt;
 ddq = diff(dq, 1, 2) ./ dt;
 
+mu = opti.parameter(1);
+joint_limits_cost = mu * sum(sum((-log(-vars.variables.q + pi/2) - log(vars.variables.q - [-pi; -pi/2]))));
 
 % Instantiate
 instantiate_ndof_model(vars, opti, dt, q0, dq0, L, COM, M, I, gravity, Fext, goal, ddq, dq, q);
+
+opti.set_value(mu, .007);
+
+alpha = .007;
 
 % Optimize options
 opti.solver('ipopt');
 
 % Optimize joint velocity
 fprintf("----------------------------------------------------------\n\n\nSolving problem 1: joint velocity minimization.\n\n\n----------------------------------------------------------\n");
-opti.minimize(vars.costs.joint_vel_cost);
+opti.minimize(vars.costs.joint_vel_cost + joint_limits_cost);
 sol_1 = opti.solve();
 
 % Optimize torque
 fprintf("----------------------------------------------------------\n\n\nSolving problem 2: joint torque minimization.\n\n\n----------------------------------------------------------\n");
-opti.minimize(vars.costs.joint_torque_cost);
+opti.minimize(vars.costs.joint_torque_cost + joint_limits_cost + alpha*vars.costs.joint_vel_cost);
 sol_2 = opti.solve();
 
 % Optimize ee velocity
 fprintf("----------------------------------------------------------\n\n\nSolving problem 3: cartesian velocity minimization.\n\n\n----------------------------------------------------------\n");
-opti.minimize(vars.costs.ee_vel_cost);
+opti.minimize(vars.costs.ee_vel_cost + joint_limits_cost + alpha*vars.costs.joint_vel_cost);
 sol_3 = opti.solve();
 
 % Optimize torque change
 fprintf("----------------------------------------------------------\n\n\nSolving problem 4: joint torque change minimization.\n\n\n----------------------------------------------------------\n");
-opti.minimize(vars.costs.joint_torque_change_cost);
+opti.minimize(vars.costs.joint_torque_change_cost + joint_limits_cost + alpha*vars.costs.joint_vel_cost);
 sol_4 = opti.solve();
 
 % Optimize joint jerk
 fprintf("----------------------------------------------------------\n\n\nSolving problem 5: joint jerk minimization.\n\n\n----------------------------------------------------------\n");
-opti.minimize(vars.costs.joint_jerk_cost);
+opti.minimize(vars.costs.joint_jerk_cost + joint_limits_cost + alpha*vars.costs.joint_vel_cost);
 sol_5 = opti.solve();
 
 % Numerize
@@ -96,8 +106,7 @@ grid;
 xlabel('Sagittal axis: $x$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ylabel('Vertical axis: $z$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ax = gca; ax.FontSize = 25; ax.TickLabelInterpreter = 'latex';
-% exportgraphics(gcf, "../../img/1-min-joint-velocity.pdf", 'ContentType', 'vector');
-exportgraphics(gcf, "../../img/1-min-joint-velocity.png", 'ContentType', 'image', 'Resolution', 600);
+exportgraphics(gcf, "../../img/h1-min-joint-velocity.pdf", 'ContentType', 'vector');
 
 figure('WindowState', 'maximized');
 hold all;
@@ -109,8 +118,7 @@ grid;
 xlabel('Sagittal axis: $x$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ylabel('Vertical axis: $z$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ax = gca; ax.FontSize = 25; ax.TickLabelInterpreter = 'latex';
-% exportgraphics(gcf, "../../img/2-min-joint-torque.pdf", 'ContentType', 'vector');
-exportgraphics(gcf, "../../img/2-min-joint-torque.png", 'ContentType', 'image', 'Resolution', 600);
+exportgraphics(gcf, "../../img/h2-min-joint-torque.pdf", 'ContentType', 'vector');
 
 figure('WindowState', 'maximized');
 hold all;
@@ -122,8 +130,7 @@ grid;
 xlabel('Sagittal axis: $x$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ylabel('Vertical axis: $z$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ax = gca; ax.FontSize = 25; ax.TickLabelInterpreter = 'latex';
-% exportgraphics(gcf, "../../img/3-min-ee-velocity.pdf", 'ContentType', 'vector');
-exportgraphics(gcf, "../../img/3-min-ee-velocity.png", 'ContentType', 'image', 'Resolution', 600);
+exportgraphics(gcf, "../../img/h3-min-ee-velocity.pdf", 'ContentType', 'vector');
 
 figure('WindowState', 'maximized');
 hold all;
@@ -135,8 +142,7 @@ grid;
 xlabel('Sagittal axis: $x$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ylabel('Vertical axis: $z$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ax = gca; ax.FontSize = 25; ax.TickLabelInterpreter = 'latex';
-% exportgraphics(gcf, "../../img/4-min-joint-torque-change.pdf", 'ContentType', 'vector');
-exportgraphics(gcf, "../../img/4-min-joint-torque-change.png", 'ContentType', 'image', 'Resolution', 600);
+exportgraphics(gcf, "../../img/h4-min-joint-torque-change.pdf", 'ContentType', 'vector');
 
 figure('WindowState', 'maximized');
 hold all;
@@ -148,8 +154,7 @@ grid;
 xlabel('Sagittal axis: $x$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ylabel('Vertical axis: $z$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ax = gca; ax.FontSize = 25; ax.TickLabelInterpreter = 'latex';
-% exportgraphics(gcf, "../../img/5-min-joint-jerk.pdf", 'ContentType', 'vector');
-exportgraphics(gcf, "../../img/5-min-joint-jerk.png", 'ContentType', 'image', 'Resolution', 600);
+exportgraphics(gcf, "../../img/h5-min-joint-jerk.pdf", 'ContentType', 'vector');
 
 figure('WindowState','maximized');
 hold on;

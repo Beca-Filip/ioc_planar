@@ -92,19 +92,19 @@ close all
 
 figure('WindowState', 'maximized');
 hold all;
-plot_traj_from_vars(num_vars_1, 10);
+plot_snapshots_from_vars(num_vars_1, 10);
 plot(goal(1), goal(2), 'ro', 'MarkerFaceColor', 'auto', 'MarkerSize', 20);
 axis('equal');
 
 figure('WindowState', 'maximized');
 hold all;
-plot_traj_from_vars(num_vars_2, 10);
+plot_snapshots_from_vars(num_vars_2, 10);
 plot(goal(1), goal(2), 'ro', 'MarkerFaceColor', 'auto', 'MarkerSize', 20);
 axis('equal');
 
 figure('WindowState', 'maximized');
 hold all;
-plot_traj_from_vars(num_vars_ioc, 10);
+plot_snapshots_from_vars(num_vars_ioc, 10);
 plot(goal(1), goal(2), 'ro', 'MarkerFaceColor', 'auto', 'MarkerSize', 20);
 axis('equal');
 
