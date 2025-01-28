@@ -118,7 +118,8 @@ function [opti, vars] = make_ndof_jumping_model(n, N)
     vars.costs.avg_ee_acc_cost = sum(sum(vars.functions.A{end}.^2)) / N;
     vars.costs.avg_ee_jer_cost = sum(sum(diff(vars.functions.A{end}, 1, 2).^2)) ./ vars.parameters.dt.^2 / N;
 
-    vars.costs.max_com_height_cost = -(vars.functions.Pcomtotal(2, end) + vars.functions.Vcom{end}(2, end)^2 ./ (2 * abs(vars.parameters.gravity(2)))); 
+    vars.costs.max_com_height_cost = -(vars.functions.Pcomtotal(2, end) + vars.functions.Vcomtotal(2, end)^2 ./ (2 * abs(vars.parameters.gravity(2)))); 
+    vars.costs.com_horizontal_vel_cost = vars.functions.Vcomtotal(1, end).^2; 
     
     % Set
     opti.subject_to(vars.constraints.initial_pos == 0);

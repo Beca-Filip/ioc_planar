@@ -1,5 +1,5 @@
 n = 3;
-N = 18;
+N = 12;
 T = 1.2;
 
 warmStartName = sprintf("warmStart-n%02d-N%04d.mat", n, N);
@@ -10,7 +10,7 @@ warmStartName = sprintf("warmStart-n%02d-N%04d.mat", n, N);
 % dt = 0.01;
 dt = T / (N-1);
 
-Mtot = 77.3;
+Mtot = 77.3;    
 Htot = 1.77;
 L = [0.433; 0.432; (93+151+334)/1000; 0.277; (283 + 80) / 1000];
 L = L(1:n);
@@ -49,7 +49,8 @@ end
 %     -pi/4 * ones(1, N);
 %     zeros(n-3, N);
 % ];
-q = [pi/2 * ones(1, N); zeros(n-1, N)];
+% q = [pi/2 * ones(1, N); zeros(n-1, N)];
+q = [pi/2*ones(1, N)-sin(((1:N)-1)/(N-1)*pi); pi/2*sin(((1:N)-1)/(N-1)*pi); -pi/2*sin(((1:N)-1)/(N-1)*pi)];
 q = q(1:n, :);
 noise = deg2rad(3 / (N)) * randn(size(q));
 q = q + noise;
@@ -81,7 +82,7 @@ ivars = numerize_vars(vars, opti, true);
 
 % Optimize options
 opti.solver('ipopt', struct(), struct("max_iter", 10000));
-opti.minimize(vars.costs.max_com_height_cost + 0.05 * vars.costs.avg_joint_vel_cost);
+opti.minimize(vars.costs.max_com_height_cost + 0.05 * vars.costs.avg_joint_vel_cost + vars.costs.com_horizontal_vel_cost);
 sol_1 = opti.solve();
 
 % Numerize
@@ -92,7 +93,7 @@ close all
 
 figure('WindowState', 'maximized');
 hold all;
-plot_traj_from_vars(nvars, 3);
+plot_traj_from_vars(nvars, 5);
 axis('equal');
 expandAxes(1.2);
 grid;
