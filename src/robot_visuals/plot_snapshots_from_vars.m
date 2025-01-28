@@ -12,6 +12,11 @@ function plot_snapshots_from_vars(num_vars, numpts)
         plot(num_vars.functions.Pcom{ii}(1, :), num_vars.functions.Pcom{ii}(2, :), 'Color', [0, 1, 1], 'LineWidth', 2);
     end
 
+    % Plot cartesian total COM trajectory
+    if isfield(num_vars.functions, 'Pcomtotal')
+        plot(num_vars.functions.Pcomtotal(1, :), num_vars.functions.Pcomtotal(2, :), 'Color', [0.2, 0.7, 0.05], 'LineWidth', 2);
+    end
+
     % Plot robot configurations
     for ii = floor(linspace(1, N, numpts))
         [P, ~, ~, ~] = snapshot_from_vars(num_vars, ii);
