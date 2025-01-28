@@ -1,13 +1,22 @@
 function plot_joint_traj_from_vars(num_vars, varargin)
 
-[n, N] = size(num_vars.variables.q);
-t = linspace(0, (N-1) * num_vars.parameters.dt, N);
+[n, Nq] = size(num_vars.variables.q);
+[~, Ndq] = size(num_vars.variables.dq);
+[~, Nddq] = size(num_vars.variables.ddq);
+[~, Ntau] = size(num_vars.functions.model_tau);
+tq = linspace(0, (Nq-1) * num_vars.parameters.dt, Nq);
+tdq = linspace(0, (Ndq-1) * num_vars.parameters.dt, Ndq);
+tddq = linspace(0, (Nddq-1) * num_vars.parameters.dt, Nddq);
+ttau = linspace(0, (Nddq-1) * num_vars.parameters.dt, Ntau);
 
 for ii = 1 : n
     subplot(n, 4, (ii-1) * 4 + 1)
     hold on;
-    plot(t, num_vars.variables.q(ii, :), varargin{:});
+    plot(tq, num_vars.variables.q(ii, :), varargin{:});
+    plot(tq([1, end]), num_vars.parameters.qmin(ii) * ones(1, 2), 'Color', [0, 0.7, 0.7], varargin{:});
+    plot(tq([1, end]), num_vars.parameters.qmax(ii) * ones(1, 2), 'Color', [0.7, 0, 0.7], varargin{:});
     ylabel(sprintf("$q_{%d}$", ii), 'Interpreter', 'latex');
+    grid;
     
     if ii == n
         xlabel(sprintf("$t$ [s]"), 'Interpreter', 'latex')
@@ -15,8 +24,11 @@ for ii = 1 : n
 
     subplot(n, 4, (ii-1) * 4 + 2)
     hold on;
-    plot(t(1:end-1), num_vars.variables.dq(ii, :), varargin{:});
+    plot(tdq, num_vars.variables.dq(ii, :), varargin{:});
+    plot(tdq([1, end]), num_vars.parameters.dqmin(ii) * ones(1, 2), 'Color', [0, 0.7, 0.7], varargin{:});
+    plot(tdq([1, end]), num_vars.parameters.dqmax(ii) * ones(1, 2), 'Color', [0.7, 0, 0.7], varargin{:});
     ylabel(sprintf("$\\dot{q}_{%d}$", ii), 'Interpreter', 'latex');
+    grid;
 
     if ii == n
         xlabel(sprintf("$t$ [s]"), 'Interpreter', 'latex')
@@ -24,8 +36,9 @@ for ii = 1 : n
     
     subplot(n, 4, (ii-1) * 4 + 3)
     hold on;
-    plot(t(1:end-2), num_vars.variables.ddq(ii, :), varargin{:});
+    plot(tddq, num_vars.variables.ddq(ii, :), varargin{:});
     ylabel(sprintf("$\\ddot{q}_{%d}$", ii), 'Interpreter', 'latex');
+    grid;
 
     if ii == n
         xlabel(sprintf("$t$ [s]"), 'Interpreter', 'latex')
@@ -33,8 +46,11 @@ for ii = 1 : n
     
     subplot(n, 4, (ii-1) * 4 + 4)
     hold on;
-    plot(t(1:end-2), num_vars.functions.model_tau(ii, 1:end-2), varargin{:});
+    plot(ttau, num_vars.functions.model_tau(ii, :), varargin{:});
+    plot(ttau([1, end]), num_vars.parameters.taumin(ii) * ones(1, 2), 'Color', [0, 0.7, 0.7], varargin{:});
+    plot(ttau([1, end]), num_vars.parameters.taumax(ii) * ones(1, 2), 'Color', [0.7, 0, 0.7], varargin{:});
     ylabel(sprintf("$\\tau_{%d}$", ii), 'Interpreter', 'latex');
+    grid;
 
     if ii == n
         xlabel(sprintf("$t$ [s]"), 'Interpreter', 'latex')
