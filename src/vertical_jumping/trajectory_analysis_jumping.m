@@ -93,7 +93,7 @@ close all
 
 figure('WindowState', 'maximized');
 hold all;
-plot_traj_from_vars(nvars, 5);
+plot_snapshots_from_vars(nvars, 5);
 axis('equal');
 expandAxes(1.2);
 grid;
