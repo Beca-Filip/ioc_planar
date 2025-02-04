@@ -1,4 +1,10 @@
-function varargout = snapshot_from_vars(num_vars, ii)
+function varargout = snapshot_from_vars(num_vars, ii, marker_size, line_width)
+if nargin < 4
+    line_width = 2;
+end
+if nargin < 3
+    marker_size = 15;
+end
 
 n = size(num_vars.variables.q, 1);
 
@@ -22,15 +28,15 @@ if isfield(num_vars.functions, 'Pcomtotal')
     Pcomtotaly = num_vars.functions.Pcomtotal(2, ii);
 end
 
-plot(Px, Py, 'Color', [0, 0, 0], 'LineStyle', '-', 'Marker', 'o', 'MarkerSize', 15, 'LineWidth', 2);
+plot(Px, Py, 'Color', [0, 0, 0], 'LineStyle', '-', 'Marker', 'o', 'MarkerSize', marker_size, 'LineWidth', line_width);
 
-quiver(Px, Py, Ux, Vx, .1, 'LineWidth', 2, 'Color', [1, 0, 0]);
-quiver(Px, Py, Uy, Vy, .1, 'LineWidth', 2, 'Color', [0, 1, 0]);
+quiver(Px, Py, Ux, Vx, .1, 'LineWidth', line_width, 'Color', [1, 0, 0]);
+quiver(Px, Py, Uy, Vy, .1, 'LineWidth', line_width, 'Color', [0, 1, 0]);
 
-plot(Pcomx, Pcomy, 'Color', 'c', 'LineStyle', 'None', 'Marker', 'o', 'MarkerSize', 15, 'LineWidth', 2);
+plot(Pcomx, Pcomy, 'Color', 'c', 'LineStyle', 'None', 'Marker', 'o', 'MarkerSize', marker_size, 'LineWidth', line_width);
 
 if isfield(num_vars.functions, 'Pcomtotal')
-    plot(Pcomtotalx, Pcomtotaly, 'Color', [0.2, 0.7, 0.05], 'LineStyle', 'None', 'Marker', 'square', 'MarkerSize', 15, 'LineWidth', 2);
+    plot(Pcomtotalx, Pcomtotaly, 'Color', [0.2, 0.7, 0.05], 'LineStyle', 'None', 'Marker', 'square', 'MarkerSize', marker_size, 'LineWidth', line_width);
 end
 
 if nargout > 0
