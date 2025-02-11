@@ -14,51 +14,65 @@ Vcom = cell(n, 1);
 Acom = cell(n, 1);
 Fcom = cell(n, 1);
 
-for ii = 1 : n
-
-    Pcom{ii} = zeros(3, N, class(q));
-    Pcom{ii}(1, :) = P{ii}(1, :) + COM(1, ii) .* cos(sum(q(1:ii, :), 1)) - COM(2, ii) .* sin(sum(q(1:ii, :), 1));
-    Pcom{ii}(2, :) = P{ii}(2, :) + COM(1, ii) .* sin(sum(q(1:ii, :), 1)) + COM(2, ii) .* cos(sum(q(1:ii, :), 1));
-    Pcom{ii}(3, :) = P{ii}(3, :) + q(ii, :);
+for k = 1 : n
     
-    P{ii + 1} = zeros(3, N, class(q));
-    P{ii + 1}(1, :) = P{ii}(1, :) + L(ii) .* cos(sum(q(1:ii, :), 1));
-    P{ii + 1}(2, :) = P{ii}(2, :) + L(ii) .* sin(sum(q(1:ii, :), 1));
-    P{ii + 1}(3, :) = P{ii}(3, :) + q(ii, :);
+    % Precompute reused quantities
+    q_1k = q(1:k, :);
+    sumq_1k = sum(q_1k, 1);
+    cq_1k = cos(sumq_1k);
+    sq_1k = sin(sumq_1k);
 
-    Vcom{ii} = zeros(3, N, class(q));
-    Vcom{ii}(1, :) = V{ii}(1, :) - COM(1, ii) .* sin(sum(q(1:ii, :), 1)) .* sum(dq(1:ii, :), 1) - COM(2, ii) .* cos(sum(q(1:ii, :), 1)) .* sum(dq(1:ii, :), 1);
-    Vcom{ii}(2, :) = V{ii}(2, :) + COM(1, ii) .* cos(sum(q(1:ii, :), 1)) .* sum(dq(1:ii, :), 1) - COM(2, ii) .* sin(sum(q(1:ii, :), 1)) .* sum(dq(1:ii, :), 1);
-    Vcom{ii}(3, :) = V{ii}(3, :) + dq(ii, :);
+    dq_1k = dq(1:k, :);
+    sumdq_1k = sum(dq_1k, 1);
+    sqsumdq_1k = sumdq_1k.^2;
+    
+    ddq_1k = ddq(1:k, :);
+    sumddq_1k = sum(ddq_1k, 1);
 
-    V{ii + 1} = zeros(3, N, class(q));
-    V{ii + 1}(1, :) = V{ii}(1, :) - L(ii) .* sin(sum(q(1:ii, :), 1)) .* sum(dq(1:ii, :), 1);
-    V{ii + 1}(2, :) = V{ii}(2, :) + L(ii) .* cos(sum(q(1:ii, :), 1)) .* sum(dq(1:ii, :), 1);
-    V{ii + 1}(3, :) = V{ii}(3, :) + dq(ii, :);
+    % Propagate
+    Pcom{k} = zeros(3, N, class(q));
+    Pcom{k}(1, :) = P{k}(1, :) + COM(1, k) .* cq_1k - COM(2, k) .* sq_1k;
+    Pcom{k}(2, :) = P{k}(2, :) + COM(1, k) .* sq_1k + COM(2, k) .* cq_1k;
+    Pcom{k}(3, :) = P{k}(3, :) + q(k, :);
+    
+    P{k + 1} = zeros(3, N, class(q));
+    P{k + 1}(1, :) = P{k}(1, :) + L(k) .* cq_1k;
+    P{k + 1}(2, :) = P{k}(2, :) + L(k) .* sq_1k;
+    P{k + 1}(3, :) = P{k}(3, :) + q(k, :);
+
+    Vcom{k} = zeros(3, N, class(q));
+    Vcom{k}(1, :) = V{k}(1, :) - COM(1, k) .* sq_1k .* sumdq_1k - COM(2, k) .* cq_1k .* sumdq_1k;
+    Vcom{k}(2, :) = V{k}(2, :) + COM(1, k) .* cq_1k .* sumdq_1k - COM(2, k) .* sq_1k .* sumdq_1k;
+    Vcom{k}(3, :) = V{k}(3, :) + dq(k, :);
+
+    V{k + 1} = zeros(3, N, class(q));
+    V{k + 1}(1, :) = V{k}(1, :) - L(k) .* sq_1k .* sumdq_1k;
+    V{k + 1}(2, :) = V{k}(2, :) + L(k) .* cq_1k .* sumdq_1k;
+    V{k + 1}(3, :) = V{k}(3, :) + dq(k, :);
 
     
-    Acom{ii} = zeros(3, N, class(q));
-    Acom{ii}(1, :) = Acom{ii}(1, :) - COM(1, ii) .* cos(sum(q(1:ii, :), 1)) .* (sum(dq(1:ii, :), 1).^2) ...
-                                    - COM(1, ii) .* sin(sum(q(1:ii, :), 1)) .* sum(ddq(1:ii, :), 1) ...
-                                    + COM(2, ii) .* sin(sum(q(1:ii, :), 1)) .* (sum(dq(1:ii, :), 1).^2) ...
-                                    - COM(2, ii) .* cos(sum(q(1:ii, :), 1)) .* sum(ddq(1:ii, :), 1);
-    Acom{ii}(2, :) = Acom{ii}(2, :) - COM(1, ii) .* sin(sum(q(1:ii, :), 1)) .* (sum(dq(1:ii, :), 1).^2) ...
-                                    + COM(1, ii) .* cos(sum(q(1:ii, :), 1)) .* sum(ddq(1:ii, :), 1) ...
-                                    - COM(2, ii) .* cos(sum(q(1:ii, :), 1)) .* (sum(dq(1:ii, :), 1).^2) ...
-                                    - COM(2, ii) .* sin(sum(q(1:ii, :), 1)) .* sum(ddq(1:ii, :), 1);
-    Acom{ii}(3, :) = Acom{ii}(3, :) + ddq(ii, :);
+    Acom{k} = zeros(3, N, class(q));
+    Acom{k}(1, :) = Acom{k}(1, :) - COM(1, k) .* cq_1k .* (sqsumdq_1k) ...
+                                    - COM(1, k) .* sq_1k .* sumddq_1k ...
+                                    + COM(2, k) .* sq_1k .* (sqsumdq_1k) ...
+                                    - COM(2, k) .* cq_1k .* sumddq_1k;
+    Acom{k}(2, :) = Acom{k}(2, :) - COM(1, k) .* sq_1k .* (sqsumdq_1k) ...
+                                    + COM(1, k) .* cq_1k .* sumddq_1k ...
+                                    - COM(2, k) .* cq_1k .* (sqsumdq_1k) ...
+                                    - COM(2, k) .* sq_1k .* sumddq_1k;
+    Acom{k}(3, :) = Acom{k}(3, :) + ddq(k, :);
 
-    A{ii + 1} = zeros(3, N, class(q));
-    A{ii + 1}(1, :) = A{ii}(1, :) - L(ii) .* cos(sum(q(1:ii, :), 1)) .* (sum(dq(1:ii, :), 1).^2) ...
-                                  - L(ii) .* sin(sum(q(1:ii, :), 1)) .* sum(ddq(1:ii, :), 1);
-    A{ii + 1}(2, :) = A{ii}(2, :) - L(ii) .* sin(sum(q(1:ii, :), 1)) .* (sum(dq(1:ii, :), 1).^2) ...
-                                  + L(ii) .* cos(sum(q(1:ii, :), 1)) .* sum(ddq(1:ii, :), 1);
-    A{ii + 1}(3, :) = A{ii}(3, :) + ddq(ii, :);
+    A{k + 1} = zeros(3, N, class(q));
+    A{k + 1}(1, :) = A{k}(1, :) - L(k) .* cq_1k .* (sqsumdq_1k) ...
+                                  - L(k) .* sq_1k .* sumddq_1k;
+    A{k + 1}(2, :) = A{k}(2, :) - L(k) .* sq_1k .* (sqsumdq_1k) ...
+                                  + L(k) .* cq_1k .* sumddq_1k;
+    A{k + 1}(3, :) = A{k}(3, :) + ddq(k, :);
 
-    Fcom{ii} = zeros(3, N, class(q));
-    Fcom{ii}(1, :) = M(ii) .* Acom{ii}(1, :);
-    Fcom{ii}(2, :) = M(ii) .* Acom{ii}(2, :);
-    Fcom{ii}(3, :) = I(ii) .* Acom{ii}(3, :);
+    Fcom{k} = zeros(3, N, class(q));
+    Fcom{k}(1, :) = M(k) .* Acom{k}(1, :);
+    Fcom{k}(2, :) = M(k) .* Acom{k}(2, :);
+    Fcom{k}(3, :) = I(k) .* Acom{k}(3, :);
 end
 
 end
