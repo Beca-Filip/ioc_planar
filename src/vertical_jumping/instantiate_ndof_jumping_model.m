@@ -1,4 +1,4 @@
-function instantiate_ndof_jumping_model(vars, opti, dt, q0, dq0, mu, L, COM, M, I, qmin, qmax, dqmin, dqmax, taumin, taumax, gravity, Fext, ddq, dq, q)
+function instantiate_ndof_jumping_model(vars, opti, dt, q0, dq0, mu, L, COM, M, I, qmin, qmax, dqmin, dqmax, taumin, taumax, zmpmin, zmpmax, gravity, Fext, ddq, dq, q)
     
     n = size(q0, 1);
 
@@ -19,6 +19,8 @@ function instantiate_ndof_jumping_model(vars, opti, dt, q0, dq0, mu, L, COM, M, 
     opti.set_value(vars.parameters.dqmax, dqmax);
     opti.set_value(vars.parameters.taumin, taumin);
     opti.set_value(vars.parameters.taumax, taumax);
+    opti.set_value(vars.parameters.zmpmin, zmpmin);
+    opti.set_value(vars.parameters.zmpmax, zmpmax);
 
     opti.set_value(vars.parameters.gravity, gravity);
     

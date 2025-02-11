@@ -1,5 +1,5 @@
 n = 3;
-N = 36;
+N = 108;
 T = 1.2;
 
 warmStartName = sprintf("warmStart-n%02d-N%04d.mat", n, N);
@@ -24,6 +24,7 @@ mu = 0.6;
 [qmin, qmax] = humanJointLimits(n);
 [dqmin, dqmax] = humanVelocityLimits(n);
 [taumin, taumax] = humanTorqueLimits(n);
+[zmpmin, zmpmax] = humanZmpLimits(n);
 
 gravity = [0; -9.81];
 Fext = cell(n, 1);
@@ -52,7 +53,7 @@ end
 % q = [pi/2 * ones(1, N); zeros(n-1, N)];
 q = [pi/2 - 0.5*sin(((1:N)-1)/(N-1)*pi); 1.3*sin(((1:N)-1)/(N-1)*pi); -1.3*sin(((1:N)-1)/(N-1)*pi)];
 q = q(1:n, :);
-noise = deg2rad(3 / (N)) * randn(size(q));
+% noise = deg2rad(3 / (N)) * randn(size(q));
 % q = q + noise;
 
 
@@ -78,12 +79,19 @@ q0 = q(:, 1);
 dq0 = dq(:, 1);
 
 % Instantiate
-instantiate_ndof_jumping_model(vars, opti, dt, q0, dq0, mu, L, COM, M, I, qmin, qmax, dqmin, dqmax, taumin, taumax, gravity, Fext, ddq, dq, q);
+instantiate_ndof_jumping_model(vars, opti, dt, q0, dq0, mu, L, COM, M, I, qmin, qmax, dqmin, dqmax, taumin, taumax, zmpmin, zmpmax, gravity, Fext, ddq, dq, q);
 ivars = numerize_vars(vars, opti, true);
 
 % Optimize options
 opti.solver('ipopt', struct(), struct("max_iter", 10000));
-opti.minimize(vars.costs.max_com_height_cost + 0.05 * vars.costs.avg_joint_vel_cost + vars.costs.com_horizontal_vel_cost);
+opti.minimize(vars.costs.max_com_height_cost ...
+            + (-1.00e+00) *  vars.functions.Vcomtotal(2, end) ...
+            + (1.0e-01/2 * 9.5500e-02) * vars.costs.avg_joint_vel_cost ...
+            + (1.0e-01/2 * 1.3469e-04) * vars.costs.avg_joint_acc_cost ...
+            + (1.0e-01/1 * 2.8494e-05) * vars.costs.avg_joint_torque_cost ...
+            + (1.0e-01/1 * 5.0561e-08) * vars.costs.avg_joint_torque_change_cost ...
+);
+% opti.minimize(vars.costs.max_com_height_cost);
 % opti.minimize(vars.costs.takeoff_grf_cost + 100*sum(sum((vars.variables.q - q).^2)) - 1e4*vars.functions.Vcomtotal(2, end).^2);
 sol_1 = opti.solve();
 
@@ -95,13 +103,17 @@ close all
 
 figure('WindowState', 'maximized');
 hold all;
-plot_snapshots_from_vars(nvars, 5);
+plot_snapshots_from_vars(nvars, 4);
 axis('equal');
 expandAxes(1.2);
 grid;
 xlabel('Sagittal axis: $x$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ylabel('Vertical axis: $z$ [m]', 'Interpreter', 'latex', 'FontSize', 25);
 ax = gca; ax.FontSize = 25; ax.TickLabelInterpreter = 'latex';
+
+figure('WindowState', 'maximized');
+hold all;
+plot_separate_snapshots_from_vars(nvars, 12);
 
 figure('WindowState','maximized');
 hold on;
@@ -124,15 +136,17 @@ figure('WindowState','maximized');
 hold on;
 plot_com_vels_from_vars(nvars, 'LineWidth', 2);
 
-
 figure('WindowState','maximized');
 hold on;
 plot_total_com_kinematics_from_vars(nvars, 'LineWidth', 2);
 
-
 figure('WindowState','maximized');
 hold on;
 plot_grfs_from_vars(nvars, 'LineWidth', 2);
+
+figure('WindowState','maximized');
+hold on;
+plot_zmp_from_vars(nvars, 'LineWidth', 2);
 
 %% Saving for warmStart
 if ~isempty(input(sprintf("Any key then enter if the solution should be saved in %s:\n", warmStartName)))

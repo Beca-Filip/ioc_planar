@@ -22,6 +22,8 @@ function [opti, vars] = make_ndof_jumping_model(n, N)
     vars.parameters.dqmax = opti.parameter(n);
     vars.parameters.taumin = opti.parameter(n);
     vars.parameters.taumax = opti.parameter(n);
+    vars.parameters.zmpmin = opti.parameter(1);
+    vars.parameters.zmpmax = opti.parameter(1);
 
     vars.parameters.gravity = opti.parameter(2);
     vars.parameters.Fext = cell(n, 1);
@@ -84,6 +86,8 @@ function [opti, vars] = make_ndof_jumping_model(n, N)
     vars.functions.Pcomtotal = vars.functions.Pcomtotal / sum(vars.parameters.M);
     vars.functions.Vcomtotal = vars.functions.Vcomtotal / sum(vars.parameters.M);
     vars.functions.Acomtotal = vars.functions.Acomtotal / sum(vars.parameters.M);
+    
+    vars.functions.zmp = vars.functions.F{1}(3, 1:end-1) ./ vars.functions.F{1}(2, 1:end-1);
 
     % Constraints
     vars.constraints.initial_pos = vars.variables.q(:, 1) - vars.parameters.q0;
@@ -110,6 +114,7 @@ function [opti, vars] = make_ndof_jumping_model(n, N)
     ];
     
     vars.constraints.positive_vertical_takeoff_velocity = -vars.functions.Vcomtotal(2, end);
+    vars.constraints.vertical_stability = [-vars.functions.zmp + vars.parameters.zmpmin; vars.functions.zmp - vars.parameters.zmpmax];
     
     % Costs
     vars.costs.avg_joint_torque_cost = sum(sum(vars.functions.model_tau.^2)) / N / n;
@@ -141,4 +146,5 @@ function [opti, vars] = make_ndof_jumping_model(n, N)
     opti.subject_to(vars.constraints.vertical_grf <= 0);
     opti.subject_to(vars.constraints.friction_cone(:) <= 0);
     opti.subject_to(vars.constraints.positive_vertical_takeoff_velocity <= 0);
+    opti.subject_to(vars.constraints.vertical_stability(:) <= 0);
 end
