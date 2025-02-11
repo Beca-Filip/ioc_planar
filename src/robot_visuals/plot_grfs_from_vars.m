@@ -22,7 +22,7 @@ vars.functions.verticalGrfFromCom = sum(vars.parameters.M) * (abs(vars.parameter
 subplot(3, 1, 2)
 hold on;
 plot(tgrf, vars.functions.F{1}(2, :), varargin{:});
-plot(tgrf, vars.functions.verticalGrfFromCom, varargin{:});
+plot(tgrf, vars.functions.verticalGrfFromCom, '--', varargin{:});
 plot(tgrf([1, end]), zeros(1, 2), 'Color', [0, 0.7, 0.7], varargin{:});
 ylabel("$F_{{\rm GRF}, y}$", 'Interpreter', 'latex');
 grid;
