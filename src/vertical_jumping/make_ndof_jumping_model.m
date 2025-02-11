@@ -75,12 +75,15 @@ function [opti, vars] = make_ndof_jumping_model(n, N)
     % Get total com
     vars.functions.Pcomtotal = zeros(2, N, class(vars.variables.ddq));
     vars.functions.Vcomtotal = zeros(2, N, class(vars.variables.ddq));
+    vars.functions.Acomtotal = zeros(2, N, class(vars.variables.ddq));
     for ii = 1 : n
         vars.functions.Pcomtotal = vars.functions.Pcomtotal + vars.parameters.M(ii) * vars.functions.Pcom{ii}(1:2, :);
         vars.functions.Vcomtotal = vars.functions.Vcomtotal + vars.parameters.M(ii) * vars.functions.Vcom{ii}(1:2, :);
+        vars.functions.Acomtotal = vars.functions.Acomtotal + vars.parameters.M(ii) * vars.functions.Acom{ii}(1:2, :);
     end
     vars.functions.Pcomtotal = vars.functions.Pcomtotal / sum(vars.parameters.M);
     vars.functions.Vcomtotal = vars.functions.Vcomtotal / sum(vars.parameters.M);
+    vars.functions.Acomtotal = vars.functions.Acomtotal / sum(vars.parameters.M);
 
     % Constraints
     vars.constraints.initial_pos = vars.variables.q(:, 1) - vars.parameters.q0;
@@ -127,7 +130,7 @@ function [opti, vars] = make_ndof_jumping_model(n, N)
     opti.subject_to(vars.constraints.initial_vel == 0);
     opti.subject_to(vars.constraints.dynamics_pos == 0);
     opti.subject_to(vars.constraints.dynamics_vel == 0);
-    % opti.subject_to(vars.constraints.takeoff_grf == 0);
+    opti.subject_to(vars.constraints.takeoff_grf == 0);
 
     opti.subject_to(vars.constraints.angle_lower_limits(:) <= 0);
     opti.subject_to(vars.constraints.angle_upper_limits(:) <= 0);
