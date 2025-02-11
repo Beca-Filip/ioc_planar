@@ -41,32 +41,25 @@ for k = 1 : n
     P{k + 1}(3, :) = P{k}(3, :) + q(k, :);
 
     Vcom{k} = zeros(3, N, class(q));
-    Vcom{k}(1, :) = V{k}(1, :) - COM(1, k) .* sq_1k .* sumdq_1k - COM(2, k) .* cq_1k .* sumdq_1k;
-    Vcom{k}(2, :) = V{k}(2, :) + COM(1, k) .* cq_1k .* sumdq_1k - COM(2, k) .* sq_1k .* sumdq_1k;
+    Vcom{k}(1, :) = V{k}(1, :) + (-COM(1, k) .* sq_1k - COM(2, k) .* cq_1k) .* sumdq_1k;
+    Vcom{k}(2, :) = V{k}(2, :) + ( COM(1, k) .* cq_1k - COM(2, k) .* sq_1k) .* sumdq_1k;
     Vcom{k}(3, :) = V{k}(3, :) + dq(k, :);
 
     V{k + 1} = zeros(3, N, class(q));
     V{k + 1}(1, :) = V{k}(1, :) - L(k) .* sq_1k .* sumdq_1k;
     V{k + 1}(2, :) = V{k}(2, :) + L(k) .* cq_1k .* sumdq_1k;
     V{k + 1}(3, :) = V{k}(3, :) + dq(k, :);
-
     
     Acom{k} = zeros(3, N, class(q));
-    Acom{k}(1, :) = Acom{k}(1, :) - COM(1, k) .* cq_1k .* (sqsumdq_1k) ...
-                                    - COM(1, k) .* sq_1k .* sumddq_1k ...
-                                    + COM(2, k) .* sq_1k .* (sqsumdq_1k) ...
-                                    - COM(2, k) .* cq_1k .* sumddq_1k;
-    Acom{k}(2, :) = Acom{k}(2, :) - COM(1, k) .* sq_1k .* (sqsumdq_1k) ...
-                                    + COM(1, k) .* cq_1k .* sumddq_1k ...
-                                    - COM(2, k) .* cq_1k .* (sqsumdq_1k) ...
-                                    - COM(2, k) .* sq_1k .* sumddq_1k;
-    Acom{k}(3, :) = Acom{k}(3, :) + ddq(k, :);
+    Acom{k}(1, :) = A{k}(1, :) + (-COM(1, k) .* cq_1k + COM(2, k) .* sq_1k) .* sqsumdq_1k ...
+                               + (-COM(1, k) .* sq_1k - COM(2, k) .* cq_1k) .* sumddq_1k;
+    Acom{k}(2, :) = A{k}(2, :) + (-COM(1, k) .* sq_1k - COM(2, k) .* cq_1k) .* sqsumdq_1k ...
+                               + ( COM(1, k) .* cq_1k - COM(2, k) .* sq_1k) .* sumddq_1k;
+    Acom{k}(3, :) = A{k}(3, :) + ddq(k, :);
 
     A{k + 1} = zeros(3, N, class(q));
-    A{k + 1}(1, :) = A{k}(1, :) - L(k) .* cq_1k .* (sqsumdq_1k) ...
-                                  - L(k) .* sq_1k .* sumddq_1k;
-    A{k + 1}(2, :) = A{k}(2, :) - L(k) .* sq_1k .* (sqsumdq_1k) ...
-                                  + L(k) .* cq_1k .* sumddq_1k;
+    A{k + 1}(1, :) = A{k}(1, :) - L(k) .* cq_1k .* sqsumdq_1k - L(k) .* sq_1k .* sumddq_1k;
+    A{k + 1}(2, :) = A{k}(2, :) - L(k) .* sq_1k .* sqsumdq_1k + L(k) .* cq_1k .* sumddq_1k;
     A{k + 1}(3, :) = A{k}(3, :) + ddq(k, :);
 
     Fcom{k} = zeros(3, N, class(q));
