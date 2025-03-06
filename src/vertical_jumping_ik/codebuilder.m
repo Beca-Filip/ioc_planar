@@ -154,27 +154,41 @@ TileFigures;
 
 %% Choose L and do IK: For 6DOF analysis
 
-planarMarkersXZ = markersToPlanarCoordinates(Markers, Markers(:, :, 1), [[1; 0; 0], [0; 0; 1]]);
-Lchoice = median(segmentLengthsPlanar, 1).';
-% Lchoice = mean(segmentLengthsPlanar, 1).';
-[qmin, qmax] = humanJointLimits(6, true);
-dplanarMarkersXZ = squeeze(diff(planarMarkersXZ(1, :, :), 1, 3));
-groundAngles = reshape(atan2(dplanarMarkersXZ(2, :), dplanarMarkersXZ(1, :)), [], 1);
-q0 = groundAnglesToJointAngles(groundAngles);
-[Q, MWE, E, ikMarkers] = run_ik(6, Lchoice, qmin, qmax, planarMarkersXZ(:, 1:2, 2:end), q0);
-
-ikMarkers = cat(3, zeros([size(ikMarkers, [1, 2]), 1]), ikMarkers);
+% planarMarkersXZ = markersToPlanarCoordinates(Markers, Markers(:, :, 1), [[1; 0; 0], [0; 0; 1]]);
+% Lchoice = median(segmentLengthsPlanar, 1).';
+% % Lchoice = mean(segmentLengthsPlanar, 1).';
+% [qmin, qmax] = humanJointLimits(6, true);
+% dplanarMarkersXZ = squeeze(diff(planarMarkersXZ(1, :, :), 1, 3));
+% groundAngles = reshape(atan2(dplanarMarkersXZ(2, :), dplanarMarkersXZ(1, :)), [], 1);
+% q0 = groundAnglesToJointAngles(groundAngles);
+% [Q, MWE, E, ikMarkers] = run_ik(6, Lchoice, qmin, qmax, planarMarkersXZ(:, 1:2, 2:end), q0);
+% 
+% ikMarkers = cat(3, zeros([size(ikMarkers, [1, 2]), 1]), ikMarkers);
 
 %% Choose L and do IK: For 3DOF analysis
+% 
+% planarMarkersXZ = markersToPlanarCoordinates(Markers, Markers(:, :, 2), [[1; 0; 0], [0; 0; 1]]);
+% % Lchoice = median(segmentLengthsPlanar(:, 2:4), 1).';
+% Lchoice = mean(segmentLengthsPlanar(:, 2:4), 1).';
+% [qmin, qmax] = humanJointLimits(3, true);
+% dplanarMarkersXZ = squeeze(diff(planarMarkersXZ(1, :, 2:5), 1, 3));
+% groundAngles = reshape(atan2(dplanarMarkersXZ(2, :), dplanarMarkersXZ(1, :)), [], 1);
+% q0 = groundAnglesToJointAngles(groundAngles);
+% [Q, MWE, E, ikMarkers] = run_ik(3, Lchoice, qmin, qmax, planarMarkersXZ(:, 1:2, 3:5), q0);
+% 
+% ikMarkers = cat(3, zeros([size(ikMarkers, [1, 2]), 1]), ikMarkers);
 
-planarMarkersXZ = markersToPlanarCoordinates(Markers, Markers(:, :, 2), [[1; 0; 0], [0; 0; 1]]);
+%% Choose L and do IK: For 4DOF analysis
+
+planarMarkersXZ = markersToPlanarCoordinates(Markers, Markers(:, :, 1), [[1; 0; 0], [0; 0; 1]]);
+planarMarkersXZ = filterLowpass(planarMarkersXZ, 1./dt, 10, 5, 1);
 % Lchoice = median(segmentLengthsPlanar(:, 2:4), 1).';
-Lchoice = mean(segmentLengthsPlanar(:, 2:4), 1).';
-[qmin, qmax] = humanJointLimits(3, true);
-dplanarMarkersXZ = squeeze(diff(planarMarkersXZ(1, :, 2:5), 1, 3));
+Lchoice = mean(segmentLengthsPlanar(:, 1:4), 1).';
+[qmin, qmax] = humanJointLimits(4, true);
+dplanarMarkersXZ = squeeze(diff(planarMarkersXZ(1, :, 1:5), 1, 3));
 groundAngles = reshape(atan2(dplanarMarkersXZ(2, :), dplanarMarkersXZ(1, :)), [], 1);
 q0 = groundAnglesToJointAngles(groundAngles);
-[Q, MWE, E, ikMarkers] = run_ik(3, Lchoice, qmin, qmax, planarMarkersXZ(:, 1:2, 3:5), q0);
+[Q, MWE, E, ikMarkers] = run_ik(4, Lchoice, qmin, qmax, planarMarkersXZ(:, 1:2, 2:5), q0);
 
 ikMarkers = cat(3, zeros([size(ikMarkers, [1, 2]), 1]), ikMarkers);
 
@@ -183,7 +197,8 @@ figure('WindowState', 'maximized');
 hold on;
 plotHandleXZ = animatePlanarMarkers(1, [], planarMarkersXZ, 'k', 'LineWidth', 2, 'Marker', 'o');
 plotHandleIK = animatePlanarMarkers(1, [], ikMarkers, 'r', 'LineWidth', 2, 'Marker', 'o', 'LineStyle', '--');
-axis("equal");
+axis("equal", "manual");
+xlim([-0.6, 0.6]); ylim([-0.1, 2.2]);
 animationFunction = @(ii) animateAggregation(ii, { 
     @(n) animatePlanarMarkers(n, plotHandleXZ, planarMarkersXZ);
     @(n) animatePlanarMarkers(n, plotHandleIK, ikMarkers);
@@ -192,7 +207,8 @@ myAnimate(animationFunction, size(planarMarkersXZ, 1), round(1./300, 3));
 
 %% Check dynamics
 
-q = Q(:, 1125:1335);
+q = Q(:, 1125:1350);
+% q = filterLowpass(q, 1./dt, 1./dt./10, 5, 2);
 n = size(q, 1);
 N = size(q, 2);
 
@@ -203,6 +219,9 @@ COM = vertcat(.5 * ones(1, n), zeros(1, n)) .* L.';
 M = [2 * 0.012; 2 * 0.048; 2 * 0.123; (14.2 + 2.9 + 30.4 + 6.7) / 100; 2 * 0.024; 2 * 0.017] .* Mtot;
 if n == 3
     M = [sum(M(1:2)); M(3); sum(M(4:end))];
+end
+if n == 4
+    M = [M(1); M(2); M(3); sum(M(4:end))];
 end
 I = 1/12 * M .* L;
 mu = 0.6;
@@ -218,6 +237,13 @@ if n == 3
     [qmin, qmax] = humanJointLimits(n, false);
     [dqmin, dqmax] = humanVelocityLimits(n);
     [taumin, taumax] = humanTorqueLimits(n, false);
+    [zmpmin, zmpmax] = humanZmpLimits(n); 
+end
+
+if n == 4   
+    [qmin, qmax] = humanJointLimits(n, true);
+    [dqmin, dqmax] = humanVelocityLimits(n);
+    [taumin, taumax] = humanTorqueLimits(n, true);
     [zmpmin, zmpmax] = humanZmpLimits(n); 
 end
 
@@ -240,3 +266,31 @@ instantiate_ndof_jumping_model(vars, opti, dt, q0, dq0, mu, L, COM, M, I, qmin, 
 ivars = numerize_vars(vars, opti.debug, true);
 
 plot_everything_from_vars(ivars)
+
+%%
+N = find(ivars.functions.F{1}(2, :) < 0, 1);
+N=N-1;
+q = q(:,1:N);
+
+for ii = 1 : n
+    Fext{ii} = zeros(3, N-1);
+end
+
+
+dq = diff(q, 1, 2) ./ dt;
+dq = [dq, dq(:, end)];
+ddq = diff(q, 2, 2) ./ dt^2;
+ddq = [ddq, ddq(:, end)];
+
+q0 = q(:, 1);
+dq0 = dq(:, 1);
+
+[opti, vars] = make_ndof_jumping_model(n, N);
+instantiate_ndof_jumping_model(vars, opti, dt, q0, dq0, mu, L, COM, M, I, qmin, qmax, dqmin, dqmax, taumin, taumax, zmpmin, zmpmax, gravity, Fext, ddq, dq, q)
+ivars = numerize_vars(vars, opti.debug, true);
+
+[constraints_violated, constraint_violations] = determine_infeasibility_from_vars(ivars)
+
+plot_everything_from_vars(ivars)
+
+q_ik = q;

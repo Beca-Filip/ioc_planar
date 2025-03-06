@@ -1,4 +1,4 @@
-function plot_grfs_from_vars(vars, varargin)
+function plot_zmp_from_vars(vars, varargin)
 
 [~, Nzmp] = size(vars.functions.zmp);
 tzmp = linspace(0, (Nzmp-1) * vars.parameters.dt, Nzmp);

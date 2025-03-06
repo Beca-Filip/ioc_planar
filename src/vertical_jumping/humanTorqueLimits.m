@@ -12,7 +12,7 @@ function [taulo, tauhi] = humanTorqueLimits(n, footFlag)
     else
         % Assumption: Foot torque ~= ankle torque
         taulo = 2*[-126, -126, -168, -185, -67, -46];
-        tauhi = 2*[126, 126,  100,  190,  92,  77];
+        tauhi = 2*[126, 1.5*126,  100,  190,  92,  77];
     end
     taulo = taulo(1:n);
     tauhi = tauhi(1:n);
