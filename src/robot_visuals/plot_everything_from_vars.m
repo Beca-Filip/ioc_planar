@@ -49,5 +49,9 @@ function plot_everything_from_vars(vars)
     figure('WindowState','maximized');
     hold on;
     plot_grfs_from_vars(vars, 'LineWidth', 2);
+    
+    figure('WindowState','maximized');
+    hold on;
+    plot_zmp_from_vars(vars, 'LineWidth', 2);
 
 end
