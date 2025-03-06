@@ -105,7 +105,6 @@ zlabel("$Z$-axis", "Interpreter", "latex", "FontSize", 15);
 zlim(expandLimits([min(Markers(:, 3, :), [], [1, 3]), max(Markers(:, 3, :), [], [1, 3])], 1.2));
 view(3);
 legend("FontSize", 15, "Position", [.6, .6, .2, .2]);
-%% Transversal plane trace
 
 %% 2D plot
 
@@ -153,8 +152,9 @@ end
 TileFigures;
 
 
-%% Choose L and do IK
+%% Choose L and do IK: For 6DOF analysis
 
+planarMarkersXZ = markersToPlanarCoordinates(Markers, Markers(:, :, 1), [[1; 0; 0], [0; 0; 1]]);
 Lchoice = median(segmentLengthsPlanar, 1).';
 % Lchoice = mean(segmentLengthsPlanar, 1).';
 [qmin, qmax] = humanJointLimits(6, true);
@@ -165,7 +165,20 @@ q0 = groundAnglesToJointAngles(groundAngles);
 
 ikMarkers = cat(3, zeros([size(ikMarkers, [1, 2]), 1]), ikMarkers);
 
-%%
+%% Choose L and do IK: For 3DOF analysis
+
+planarMarkersXZ = markersToPlanarCoordinates(Markers, Markers(:, :, 2), [[1; 0; 0], [0; 0; 1]]);
+% Lchoice = median(segmentLengthsPlanar(:, 2:4), 1).';
+Lchoice = mean(segmentLengthsPlanar(:, 2:4), 1).';
+[qmin, qmax] = humanJointLimits(3, true);
+dplanarMarkersXZ = squeeze(diff(planarMarkersXZ(1, :, 2:5), 1, 3));
+groundAngles = reshape(atan2(dplanarMarkersXZ(2, :), dplanarMarkersXZ(1, :)), [], 1);
+q0 = groundAnglesToJointAngles(groundAngles);
+[Q, MWE, E, ikMarkers] = run_ik(3, Lchoice, qmin, qmax, planarMarkersXZ(:, 1:2, 3:5), q0);
+
+ikMarkers = cat(3, zeros([size(ikMarkers, [1, 2]), 1]), ikMarkers);
+
+%% 
 figure('WindowState', 'maximized');
 hold on;
 plotHandleXZ = animatePlanarMarkers(1, [], planarMarkersXZ, 'k', 'LineWidth', 2, 'Marker', 'o');
@@ -179,7 +192,7 @@ myAnimate(animationFunction, size(planarMarkersXZ, 1), round(1./300, 3));
 
 %% Check dynamics
 
-q = Q(:, 1125:1350);
+q = Q(:, 1125:1335);
 n = size(q, 1);
 N = size(q, 2);
 
@@ -188,6 +201,9 @@ Htot = 1.77;
 L = Lchoice;
 COM = vertcat(.5 * ones(1, n), zeros(1, n)) .* L.';
 M = [2 * 0.012; 2 * 0.048; 2 * 0.123; (14.2 + 2.9 + 30.4 + 6.7) / 100; 2 * 0.024; 2 * 0.017] .* Mtot;
+if n == 3
+    M = [sum(M(1:2)); M(3); sum(M(4:end))];
+end
 I = 1/12 * M .* L;
 mu = 0.6;
 
@@ -197,6 +213,13 @@ dt = 1./300;
 [dqmin, dqmax] = humanVelocityLimits(n);
 [taumin, taumax] = humanTorqueLimits(n, true);
 [zmpmin, zmpmax] = humanZmpLimits(n);
+
+if n == 3   
+    [qmin, qmax] = humanJointLimits(n, false);
+    [dqmin, dqmax] = humanVelocityLimits(n);
+    [taumin, taumax] = humanTorqueLimits(n, false);
+    [zmpmin, zmpmax] = humanZmpLimits(n); 
+end
 
 gravity = [0; -9.81];
 Fext = cell(n, 1);
