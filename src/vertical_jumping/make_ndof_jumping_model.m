@@ -129,6 +129,7 @@ function [opti, vars] = make_ndof_jumping_model(n, N)
     vars.costs.max_com_height_cost = -(vars.functions.Pcomtotal(2, end) + vars.functions.Vcomtotal(2, end)^2 ./ (2 * abs(vars.parameters.gravity(2)))); 
     vars.costs.com_horizontal_vel_cost = vars.functions.Vcomtotal(1, end).^2; 
     vars.costs.takeoff_grf_cost = vars.functions.F{1}(2, end).^2;
+    vars.constraints.min_height_constraint = vars.functions.Pcomtotal(2, 1) + vars.costs.max_com_height_cost;
     
     % Set
     opti.subject_to(vars.constraints.initial_pos == 0);
@@ -147,4 +148,5 @@ function [opti, vars] = make_ndof_jumping_model(n, N)
     opti.subject_to(vars.constraints.friction_cone(:) <= 0);
     opti.subject_to(vars.constraints.positive_vertical_takeoff_velocity <= 0);
     opti.subject_to(vars.constraints.vertical_stability(:) <= 0);
+    opti.subject_to(vars.constraints.min_height_constraint <= 0);
 end

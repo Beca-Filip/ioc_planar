@@ -179,6 +179,7 @@ TileFigures;
 % ikMarkers = cat(3, zeros([size(ikMarkers, [1, 2]), 1]), ikMarkers);
 
 %% Choose L and do IK: For 4DOF analysis
+dt = 1./300;
 
 planarMarkersXZ = markersToPlanarCoordinates(Markers, Markers(:, :, 1), [[1; 0; 0], [0; 0; 1]]);
 planarMarkersXZ = filterLowpass(planarMarkersXZ, 1./dt, 10, 5, 1);
