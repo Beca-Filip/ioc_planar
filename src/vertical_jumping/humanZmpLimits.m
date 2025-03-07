@@ -3,7 +3,7 @@ function [zmplo, zmphi] = humanZmpLimits(n)
         zmplo = -0.08;
         zmphi = 0.16;
     else
-        zmplo = -0.22;
-        zmphi = 0.02;
+        zmplo = -0.12;
+        zmphi = 0.12;
     end
 end

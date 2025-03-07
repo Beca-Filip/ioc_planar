@@ -14,8 +14,8 @@ function [qlo, qhi] = humanJointLimits(n, footFlag)
         return
     end
 
-    qlo = deg2rad([60, -180,  -5, -150, -225, 0  ]);
-    qhi = deg2rad([180,   0, 180,   30, 15, 180]);
+    qlo = deg2rad([90, -180,  -5, -150, -225, 0  ]);
+    qhi = deg2rad([165,   0, 180,   30, 15, 180]);
     qlo = qlo(1:n);
     qhi = qhi(1:n);
 end
