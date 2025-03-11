@@ -14,8 +14,8 @@ for ii = 1 : n
     hold on;
     plot(tq, num_vars.variables.q(ii, :), varargin{:});
     if isfield(num_vars.parameters, 'qmin') && isfield(num_vars.parameters, 'qmax')
-        plot(tq([1, end]), num_vars.parameters.qmin(ii) * ones(1, 2), 'Color', [0, 0.7, 0.7], varargin{:});
-    plot(tq([1, end]), num_vars.parameters.qmax(ii) * ones(1, 2), 'Color', [0.7, 0, 0.7], varargin{:});
+        plot(tq([1, end]), num_vars.parameters.qmin(ii) * ones(1, 2), 'Color', [0, 0.7, 0.7], 'LineStyle', '--');
+        plot(tq([1, end]), num_vars.parameters.qmax(ii) * ones(1, 2), 'Color', [0.7, 0, 0.7], 'LineStyle', '--');
     end
     ylabel(sprintf("$q_{%d}$", ii), 'Interpreter', 'latex');
     grid;
@@ -28,8 +28,8 @@ for ii = 1 : n
     hold on;
     plot(tdq, num_vars.variables.dq(ii, :), varargin{:});
     if isfield(num_vars.parameters, 'dqmin') && isfield(num_vars.parameters, 'dqmax')
-        plot(tdq([1, end]), num_vars.parameters.dqmin(ii) * ones(1, 2), 'Color', [0, 0.7, 0.7], varargin{:});
-        plot(tdq([1, end]), num_vars.parameters.dqmax(ii) * ones(1, 2), 'Color', [0.7, 0, 0.7], varargin{:});
+        plot(tdq([1, end]), num_vars.parameters.dqmin(ii) * ones(1, 2), 'Color', [0, 0.7, 0.7], 'LineStyle', '--');
+        plot(tdq([1, end]), num_vars.parameters.dqmax(ii) * ones(1, 2), 'Color', [0.7, 0, 0.7], 'LineStyle', '--');
     end
     ylabel(sprintf("$\\dot{q}_{%d}$", ii), 'Interpreter', 'latex');
     grid;
@@ -52,8 +52,8 @@ for ii = 1 : n
     hold on;
     plot(ttau, num_vars.functions.model_tau(ii, :), varargin{:});
     if isfield(num_vars.parameters, 'taumin') && isfield(num_vars.parameters, 'taumax')
-        plot(ttau([1, end]), num_vars.parameters.taumin(ii) * ones(1, 2), 'Color', [0, 0.7, 0.7], varargin{:});
-        plot(ttau([1, end]), num_vars.parameters.taumax(ii) * ones(1, 2), 'Color', [0.7, 0, 0.7], varargin{:});
+        plot(ttau([1, end]), num_vars.parameters.taumin(ii) * ones(1, 2), 'Color', [0, 0.7, 0.7], 'LineStyle', '--');
+        plot(ttau([1, end]), num_vars.parameters.taumax(ii) * ones(1, 2), 'Color', [0.7, 0, 0.7], 'LineStyle', '--');
     end
     ylabel(sprintf("$\\tau_{%d}$", ii), 'Interpreter', 'latex');
     grid;
